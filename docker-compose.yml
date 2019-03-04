@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  sabnzbd:
+    image: v2labs/sabnzbd:2.3.7
+    deploy:
+      replicas: 1
+    ports:
+      - "8080:8080"
+    environment:
+      - SABNZBD_UID=816
+      - SABNZBD_UID=816
+    networks:
+      serv_net:
+        ipv4_address: 172.16.33.1
+    volumes:
+      - "sabnzbd_data:/mnt/data"
+      - "sabnzbd_downloads:/mnt/downloads"
+
+#  mylar:
+#    image:
+#    deploy:
+#      replicas: 1
+#    ports:
+#      - ":"
+#    networks:
+#
+#    volumes:
+
+networks:
+  serv_net:
+    driver: bridge
+    ipam:
+        driver: default
+        config:
+          - subnet: 172.16.33.0/24
+
+volumes:
+  sabnzbd_data:
+    driver_opts:
+      type: "nfs"
+      o: "addr=freenas.v2-labs.io,nolock,soft,rw"
+      device: ":/mnt/base/Services/SABnzbd"
+  sabnzbd_downloads:
+    driver_opts:
+      type: "nfs"
+      o: "addr=freenas.v2-labs.io,nolock,soft,rw"
+      device: ":/mnt/base/Usenet/downloads"
