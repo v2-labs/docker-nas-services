@@ -1,4 +1,4 @@
-version: '3'
+version: "2"
 
 services:
   sabnzbd:
@@ -9,13 +9,31 @@ services:
       - "8080:8080"
     environment:
       - SABNZBD_UID=816
-      - SABNZBD_UID=816
+      - SABNZBD_GID=816
     networks:
       serv_net:
-        ipv4_address: 172.16.33.1
+        ipv4_address: 172.16.33.10
     volumes:
       - "sabnzbd_data:/mnt/data"
+      - "sabnzbd_watch:/mnt/data/watch"
       - "sabnzbd_downloads:/mnt/downloads"
+
+#  transmission:
+#    image:
+#    deploy:
+#      replicas: 1
+#    ports:
+#      - "9091:9091"
+#    environment:
+#      - TORR_UID=816
+#      - TORR_GID=816
+#    networks:
+#      serv_net:
+#        ipv4_address: 172.16.33.11
+#    volumes:
+#      - ":"
+#      - ":"
+#      - ":"
 
 #  mylar:
 #    image:
@@ -23,6 +41,20 @@ services:
 #      replicas: 1
 #    ports:
 #      - ":"
+#    environment:
+#      -
+#    networks:
+#
+#    volumes:
+
+#  sickbeard:
+#    image:
+#    deploy:
+#      replicas: 1
+#    ports:
+#      - ":"
+#    environment:
+#      -
 #    networks:
 #
 #    volumes:
@@ -41,6 +73,11 @@ volumes:
       type: "nfs"
       o: "addr=freenas.v2-labs.io,nolock,soft,rw"
       device: ":/mnt/base/Services/SABnzbd"
+  sabnzbd_watch:
+    driver_opts:
+      type: "nfs"
+      o: "addr=freenas.v2-labs.io,nolock,soft,rw"
+      device: ":/mnt/base/Usenet/watch"
   sabnzbd_downloads:
     driver_opts:
       type: "nfs"
