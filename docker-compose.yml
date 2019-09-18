@@ -1,71 +1,65 @@
-version: "2"
+version: '3'
 
 services:
+
+#  nginx:
+#    image: nginx:alpine
+#    deploy:
+#      replicas: 4
+#    restart: unless-stopped
+#    container_name: nginx
+#    ports:
+#      - ""
+#      - ""
+#      - ""
+#    volumes:
+#      - ""
+#      - ""
+
   sabnzbd:
-    image: v2labs/sabnzbd:2.3.7
+    image: v2labs/sabnzbd:2.3.9
     deploy:
       replicas: 1
+    restart: unless-stopped
+    container_name: sabnzbd
     ports:
       - "8080:8080"
     environment:
       - SABNZBD_UID=816
       - SABNZBD_GID=816
-    networks:
-      serv_net:
-        ipv4_address: 172.16.33.10
     volumes:
       - "sabnzbd_data:/mnt/data"
       - "sabnzbd_watch:/mnt/data/watch"
       - "sabnzbd_downloads:/mnt/downloads"
 
-#  transmission:
-#    image:
-#    deploy:
-#      replicas: 1
-#    ports:
-#      - "9091:9091"
-#    environment:
-#      - TORR_UID=816
-#      - TORR_GID=816
-#    networks:
-#      serv_net:
-#        ipv4_address: 172.16.33.11
-#    volumes:
-#      - ":"
-#      - ":"
-#      - ":"
+  mylar:
+    image: v2labs/mylar:latest
+    deploy:
+      replicas: 1
+    restart: unless-stopped
+    container_name: mylar
+    ports:
+      - "8090:8090"
+    environment:
+      - MYLAR_UID=816
+      - MYLAR_GID=816
+    volumes:
+      - "mylar_data:/mnt/data"
+      - "mylar_comics:/mnt/comics"
+      - "mylar_torrents:/mnt/torrents"
+      - "mylar_downloads:/mnt/downloads"
 
-#  mylar:
-#    image:
-#    deploy:
-#      replicas: 1
-#    ports:
-#      - ":"
-#    environment:
-#      -
-#    networks:
-#
-#    volumes:
+  postgresql-db:
+    image: postgres:11-alpine
+    deploy:
+      replicas: 1
+    restart: always
+    container-name: postgresql
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: example
 
-#  sickbeard:
-#    image:
-#    deploy:
-#      replicas: 1
-#    ports:
-#      - ":"
-#    environment:
-#      -
-#    networks:
-#
-#    volumes:
-
-networks:
-  serv_net:
-    driver: bridge
-    ipam:
-        driver: default
-        config:
-          - subnet: 172.16.33.0/24
 
 volumes:
   sabnzbd_data:
@@ -83,3 +77,23 @@ volumes:
       type: "nfs"
       o: "addr=freenas.v2-labs.io,nolock,soft,rw"
       device: ":/mnt/base/Usenet/downloads"
+  mylar_data:
+    driver_opts:
+      type: "nfs"
+      o: "addr=freenas.v2-labs.io,nolock,soft,rw"
+      device: ":/mnt/base/Services/Mylar"
+  mylar_comics:
+    driver_opts:
+      type: "nfs"
+      o: "addr=freenas.v2-labs.io,nolock,soft,rw"
+      device: ":/mnt/base/Archive/Documents/Comics/Mylar"
+  mylar_torrents:
+    driver_opts:
+      type: "nfs"
+      o: "addr=freenas.v2-labs.io,nolock,soft,rw"
+      device: ":/mnt/base/Torrents/data"
+  mylar_downloads:
+    driver_opts:
+      type: "nfs"
+      o: "addr=freenas.v2-labs.io,nolock,soft,rw"
+      device: ":/mnt/base/Usenet/downloads/mylar"
