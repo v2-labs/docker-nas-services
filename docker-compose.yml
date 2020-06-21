@@ -2,26 +2,11 @@ version: '3'
 
 services:
 
-#  nginx:
-#    image: nginx:alpine
-#    deploy:
-#      replicas: 4
-#    restart: unless-stopped
-#    container_name: nginx
-#    ports:
-#      - ""
-#      - ""
-#      - ""
-#    volumes:
-#      - ""
-#      - ""
-
   sabnzbd:
     image: v2labs/sabnzbd:2.3.9
     deploy:
       replicas: 1
     restart: unless-stopped
-    container_name: sabnzbd
     ports:
       - "8080:8080"
     environment:
@@ -37,7 +22,6 @@ services:
     deploy:
       replicas: 1
     restart: unless-stopped
-    container_name: mylar
     ports:
       - "8090:8090"
     environment:
@@ -49,16 +33,20 @@ services:
       - "mylar_torrents:/mnt/torrents"
       - "mylar_downloads:/mnt/downloads"
 
-  postgresql-db:
-    image: postgres:11-alpine
+  plex:
+    image: v2labs/plex-server:latest
+#    image: greensheep/plex-server-docker-pi:latest
     deploy:
       replicas: 1
-    restart: always
-    container-name: postgresql
+    restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "32400:32400"
     environment:
-      POSTGRES_PASSWORD: example
+      - PLEX_UID=816
+      - PLEX_GID=816
+    volumes:
+      - "plex_data:/data"
+      - "plex_config:/config"
 
 
 volumes:
@@ -97,3 +85,13 @@ volumes:
       type: "nfs"
       o: "addr=freenas.v2-labs.io,nolock,soft,rw"
       device: ":/mnt/base/Usenet/downloads/mylar"
+  plex_data:
+    driver_opts:
+      type: "nfs"
+      o: "addr=freenas.v2-labs.io,nolock,soft,rw"
+      device: ":/mnt/base/Media/media"
+  plex_config:
+    driver_opts:
+      type: "nfs"
+      o: "addr=freenas.v2-labs.io,nolock,soft,rw"
+      device: ":/mnt/base/Services/Plex"
